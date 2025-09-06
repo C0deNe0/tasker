@@ -8,14 +8,14 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/sriniously/go-tasker/internal/config"
-	"github.com/sriniously/go-tasker/internal/database"
-	"github.com/sriniously/go-tasker/internal/handler"
-	"github.com/sriniously/go-tasker/internal/logger"
-	"github.com/sriniously/go-tasker/internal/repository"
-	"github.com/sriniously/go-tasker/internal/router"
-	"github.com/sriniously/go-tasker/internal/server"
-	"github.com/sriniously/go-tasker/internal/service"
+	"github.com/C0deNe0/go-tasker/internal/config"
+	"github.com/C0deNe0/go-tasker/internal/database"
+	"github.com/C0deNe0/go-tasker/internal/handler"
+	"github.com/C0deNe0/go-tasker/internal/logger"
+	"github.com/C0deNe0/go-tasker/internal/repository"
+	"github.com/C0deNe0/go-tasker/internal/router"
+	"github.com/C0deNe0/go-tasker/internal/server"
+	"github.com/C0deNe0/go-tasker/internal/service"
 )
 
 const DefaultContextTimeout = 30

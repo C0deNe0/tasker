@@ -3,10 +3,10 @@ package todo
 import (
 	"time"
 
+	"github.com/C0deNe0/go-tasker/internal/model"
+	"github.com/C0deNe0/go-tasker/internal/model/category"
+	"github.com/C0deNe0/go-tasker/internal/model/comment"
 	"github.com/google/uuid"
-	"github.com/sriniously/go-tasker/internal/model"
-	"github.com/sriniously/go-tasker/internal/model/category"
-	"github.com/sriniously/go-tasker/internal/model/comment"
 )
 
 type Status string
@@ -53,4 +53,21 @@ type PopulatedTodo struct {
 	Category *category.Category `json:"category" db:"category"`
 	Children []Todo             `json:"children" db:"children"`
 	Comments []comment.Comment  `json:"comments" db:"comments"`
+}
+
+type TodoStats struct {
+	Total     int `json:"total"`
+	Draft     int `json:"draft"`
+	Active    int `json:"active"`
+	Completed int `json:"completed"`
+	Archived  int `json:"archived"`
+	Overdue   int `json:"overdue"`
+}
+
+func (t *Todo) IsOverDue() bool {
+	return t.DueDate != nil && t.DueDate.Before(time.Now()) && t.Status != StatusCompleted
+}
+
+func (t *Todo) CanHaveChildren() bool {
+	return t.ParentTodoID == nil
 }

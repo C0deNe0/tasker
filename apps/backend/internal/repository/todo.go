@@ -9,10 +9,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/sriniously/go-tasker/internal/errs"
-	"github.com/sriniously/go-tasker/internal/model"
-	"github.com/sriniously/go-tasker/internal/model/todo"
-	"github.com/sriniously/go-tasker/internal/server"
+	"github.com/C0deNe0/go-tasker/internal/errs"
+	"github.com/C0deNe0/go-tasker/internal/model"
+	"github.com/C0deNe0/go-tasker/internal/model/todo"
+	"github.com/C0deNe0/go-tasker/internal/server"
 )
 
 type TodoRepository struct {
@@ -160,7 +160,6 @@ func (r *TodoRepository) GetTodoByID(ctx context.Context, userID string, todoID 
 
 	return &todoItem, nil
 }
-
 
 func (r *TodoRepository) CheckTodoExists(ctx context.Context, userID string, todoID uuid.UUID) (*todo.Todo, error) {
 	stmt := `
@@ -436,4 +435,39 @@ func (r *TodoRepository) DeleteTodo(ctx context.Context, userID string, todoID u
 	}
 
 	return nil
+}
+
+func (r *TodoRepository) GetTodoStats(ctx context.Context, userID string) (*todo.TodoStats, error) {
+	stmt := `
+		SELECT 
+			COUNT(*) AS total,
+			COUNT(
+				CASE 
+					WHEN status='draft' THEN 1
+				END
+			) AS draft,
+			COUNT(CASE WHEN status='active' THEN 1 END) AS active,
+			COUNT(CASE WHEN status='completed' THEN 1 END) AS completed,
+			COUNT(CASE WHEN status='archived' THEN 1 END) AS archived,
+			COUNT(CASE WHEN due_date<NOW() AND status!='completed' THEN 1 END) AS overdue
+		FROM
+			todos
+		WHERE
+			user_id=@user_id
+	`
+
+	rows, err := r.server.DB.Pool.Query(ctx, stmt, pgx.NamedArgs{
+		"user_id": userID,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	stats, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[todo.TodoStats])
+	if err != nil {
+		return nil, fmt.Errorf("failed to collect row from table:todos: %w", err)
+	}
+
+	return &stats, nil 
+
 }

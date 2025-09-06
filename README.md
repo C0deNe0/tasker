@@ -40,7 +40,7 @@ go-tasker/
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/sriniously/go-tasker.git
+git clone https://github.com/C0deNe0/go-tasker.git
 cd go-tasker
 ```
 
