@@ -10,16 +10,16 @@ type AddCommentPayload struct {
 	Content string    `json:"content" validate:"required,min=1,max=1000"`
 }
 
-func (p *AddCommentPayload) validate() error {
+func (p *AddCommentPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
 
 type GetCommentByTodoIDPayload struct {
-	ID uuid.UUID `param:"id" validate:"required,uuid"`
+	TodoID uuid.UUID `param:"id" validate:"required,uuid"`
 }
 
-func (p *GetCommentByTodoIDPayload) validate() error {
+func (p *GetCommentByTodoIDPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
@@ -29,7 +29,7 @@ type UpdateCommentPayload struct {
 	Content string    `json:"content" validate:"required,min=1,max=1000"`
 }
 
-func (p *UpdateCommentPayload) validate() error {
+func (p *UpdateCommentPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
@@ -38,7 +38,7 @@ type DeleteCommentPayload struct {
 	ID uuid.UUID `param:"id" validate:"required,uuid"`
 }
 
-func (p *DeleteCommentPayload) validate() error {
+func (p *DeleteCommentPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }

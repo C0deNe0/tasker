@@ -17,7 +17,7 @@ type CreateTodoPayload struct {
 	MetaData     *MetaData  `json:"metadata"`
 }
 
-func (p *CreateTodoPayload) validate() error {
+func (p *CreateTodoPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
@@ -34,7 +34,7 @@ type UpdateTodoPayload struct {
 	MetaData     *MetaData  `json:"metadata"`
 }
 
-func (p *UpdateTodoPayload) validate() error {
+func (p *UpdateTodoPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
@@ -55,7 +55,7 @@ type GetTodosQuery struct {
 	Completed    *bool      `query:"completed"`
 }
 
-func (q *GetTodosQuery) validate() error {
+func (q *GetTodosQuery) Validate() error {
 	validate := validator.New()
 	if err := validate.Struct(q); err != nil {
 		return err
@@ -88,7 +88,7 @@ type GetTodoByIDPayload struct {
 	ID uuid.UUID `param:"id" validate:"required,uuid"`
 }
 
-func (p *GetTodoByIDPayload) validate() error {
+func (p *GetTodoByIDPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
@@ -97,7 +97,7 @@ type DeleteTodoPayload struct {
 	ID uuid.UUID `param:"id" validate:"required,uuid"`
 }
 
-func (p *DeleteTodoPayload) validate() error {
+func (p *DeleteTodoPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
@@ -107,7 +107,7 @@ type GetTodoStatsPayload struct {
 	// ParentTodoID *uuid.UUID `query:"parentTodoId" validate:"omitempty,uuid"`
 }
 
-func (p *GetTodoStatsPayload) validate() error {
+func (p *GetTodoStatsPayload) Validate() error {
 	// validate := validator.New()
 	// return validate.Struct(p)
 	return nil

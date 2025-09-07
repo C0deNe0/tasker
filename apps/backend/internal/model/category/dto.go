@@ -11,7 +11,7 @@ type CreateCategoryPayload struct {
 	Description *string `json:"description" validate:"omitempty,max:255"`
 }
 
-func (p *CreateCategoryPayload) validate() error {
+func (p *CreateCategoryPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
@@ -23,7 +23,7 @@ type UpdateCategoryPayload struct {
 	Description *string   `json:"description" validate:"omitempty,max=255"`
 }
 
-func (p *UpdateCategoryPayload) validate() error {
+func (p *UpdateCategoryPayload) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
@@ -36,7 +36,9 @@ type GetCategoriesQuery struct {
 	Search *string `query:"search" validate:"omitempty,min=1"`
 }
 
-func (q *GetCategoriesQuery) validate() error {
+
+
+func (q *GetCategoriesQuery) Validate() error {
 	validate := validator.New()
 	if err := validate.Struct(q); err != nil {
 		return err
@@ -62,4 +64,12 @@ func (q *GetCategoriesQuery) validate() error {
 		q.Order = &defaultOrder
 	}
 	return nil
+}
+type DeleteCategoryPayload struct {
+	ID uuid.UUID `param:"id" validate:"required,uuid"`
+}
+
+func (p *DeleteCategoryPayload) Validate() error {
+	validate := validator.New()
+	return validate.Struct(p)
 }
