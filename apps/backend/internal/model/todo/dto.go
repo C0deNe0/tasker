@@ -112,3 +112,32 @@ func (p *GetTodoStatsPayload) Validate() error {
 	// return validate.Struct(p)
 	return nil
 }
+
+type UploadTodoAttachmentPayload struct {
+	TodoID string `param:"id" validate:"required,uuid"`
+}
+
+func (p *UploadTodoAttachmentPayload) Validate() error {
+	validate := validator.New()
+	return validate.Struct(p)
+}
+
+type DeleteTodoAttachmentPayload struct {
+	TodoID       string `param:"id" validate:"required,uuid"`
+	AttachmentID string `param:"attachmentId" validate:"required,uuid"`
+}
+
+func (p *DeleteTodoAttachmentPayload) Validate() error {
+	validate := validator.New()
+	return validate.Struct(p)
+}
+
+type GetAttachmentPresignedURLPayload struct {
+	TodoID       string `param:"id" validate:"required,uuid"`
+	AttachmentID string `param:"attachmentId" validate:"required,uuid"`
+}
+
+func (p *GetAttachmentPresignedURLPayload) Validate() error {
+	validate := validator.New()
+	return validate.Struct(p)
+}

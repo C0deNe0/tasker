@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  TASKER_DB_DSN: '{{.TASKER_DB_DSN | default "postgresql://postgres:supersecure123@127.0.0.1:5432/postgres"}}'
+  TASKER_DB_DSN: '{{.TASKER_DB_DSN | default ""}}'
 
 tasks:
   help:
@@ -19,9 +19,9 @@ tasks:
     internal: true
 
   run:
-    desc: run the cmd/go-tasker application
+    desc: run the cmd/tasker application
     cmds:
-      - go run ./cmd/go-tasker
+      - go run ./cmd/tasker
 
   migrations:new:
     desc: create a new database migration
@@ -39,9 +39,10 @@ tasks:
 
   migrations:up:
     desc: apply all up database migrations
+    deps: [confirm]
     cmds:
       - echo 'Running up migrations...'
-      - tern migrate -m ./internal/database/migrations --conn-string {{.TASKER_DB_DSN}}
+      - tern migrate -m ./internal/database/migrations --conn-string "{{.TASKER_DB_DSN}}""
 
   tidy:
     desc: format all .go files, and tidy and vendor module dependencies

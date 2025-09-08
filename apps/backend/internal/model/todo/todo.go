@@ -28,17 +28,17 @@ const (
 
 type Todo struct {
 	model.Base
-	UserID       string      `json:"userId" db:"user_id"`
-	Title        string      `json:"title" db:"title"`
-	Description  *string     `json:"description" db:"description"`
-	Status       Status      `json:"status" db:"status"`
-	Priority     Priority    `json:"priority" db:"priority"`
-	DueDate      *time.Time  `json:"dueDate" db:"due_date"`
-	CompletedAt  *time.Time  `json:"completedAt" db:"completed_at"`
-	ParentTodoID *uuid.UUID  `json:"parentTodoId" db:"parent_todo_id"`
+	UserID       string     `json:"userId" db:"user_id"`
+	Title        string     `json:"title" db:"title"`
+	Description  *string    `json:"description" db:"description"`
+	Status       Status     `json:"status" db:"status"`
+	Priority     Priority   `json:"priority" db:"priority"`
+	DueDate      *time.Time `json:"dueDate" db:"due_date"`
+	CompletedAt  *time.Time `json:"completedAt" db:"completed_at"`
+	ParentTodoID *uuid.UUID `json:"parentTodoId" db:"parent_todo_id"`
 	CategoryID   *uuid.UUID `json:"categoryId" db:"category_id"`
-	MetaData     *MetaData   `json:"metaData" db:"metadata"`
-	SortOrder    int         `json:"sortOrder" db:"sort_order"`
+	MetaData     *MetaData  `json:"metaData" db:"metadata"`
+	SortOrder    int        `json:"sortOrder" db:"sort_order"`
 }
 
 type MetaData struct {
@@ -50,9 +50,10 @@ type MetaData struct {
 
 type PopulatedTodo struct {
 	Todo
-	Category *category.Category `json:"category" db:"category"`
-	Children []Todo             `json:"children" db:"children"`
-	Comments []comment.Comment  `json:"comments" db:"comments"`
+	Category   *category.Category `json:"category" db:"category"`
+	Children   []Todo             `json:"children" db:"children"`
+	Comments   []comment.Comment  `json:"comments" db:"comments"`
+	Attachment []TodoAttachment   `json:"attachments" db:"attachments"`
 }
 
 type TodoStats struct {

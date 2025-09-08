@@ -7,12 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/C0deNe0/go-tasker/internal/errs"
 	"github.com/C0deNe0/go-tasker/internal/model"
 	"github.com/C0deNe0/go-tasker/internal/model/todo"
 	"github.com/C0deNe0/go-tasker/internal/server"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type TodoRepository struct {
@@ -120,7 +120,7 @@ func (r *TodoRepository) GetTodoByID(ctx context.Context, userID string, todoID 
 				jsonb_agg(
 					to_jsonb(camel (att))
 					ORDER BY
-						att.created_at ASC
+						att.created_at DESC
 				) FILTER (
 					WHERE att.id IS NOT NULL
 				),
@@ -212,7 +212,18 @@ func (r *TodoRepository) GetTodos(ctx context.Context, userID string, query *tod
 							com.id IS NOT NULL  
 					),
 					'[]'::JOSNB
-				 ) AS comments 
+				 ) AS comments,
+				  COALESCE(
+				 	jsonb_agg(
+						to_jsonb(camel (att))
+						ORDER BY
+							att.created_at DESC
+					) FILTER (
+						WHERE
+							att.id IS NOT NULL  
+					),
+					'[]'::JOSNB
+				 ) AS attachments
 
 				FROM 
 					todos t
@@ -222,6 +233,7 @@ func (r *TodoRepository) GetTodos(ctx context.Context, userID string, query *tod
 					AND child.user_id=@user_id
 					LEFT JOIN todo_comments com ON com.todo_id=t.id
 					AND com.user_id=@user_id
+					LEFT JOIN todo_attachments att ON att.todo_id=t.id
 		`
 
 	args := pgx.NamedArgs{
@@ -468,6 +480,6 @@ func (r *TodoRepository) GetTodoStats(ctx context.Context, userID string) (*todo
 		return nil, fmt.Errorf("failed to collect row from table:todos: %w", err)
 	}
 
-	return &stats, nil 
+	return &stats, nil
 
 }
