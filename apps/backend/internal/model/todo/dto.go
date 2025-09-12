@@ -114,7 +114,7 @@ func (p *GetTodoStatsPayload) Validate() error {
 }
 
 type UploadTodoAttachmentPayload struct {
-	TodoID string `param:"id" validate:"required,uuid"`
+	TodoID uuid.UUID `param:"id" validate:"required,uuid"`
 }
 
 func (p *UploadTodoAttachmentPayload) Validate() error {
@@ -123,8 +123,8 @@ func (p *UploadTodoAttachmentPayload) Validate() error {
 }
 
 type DeleteTodoAttachmentPayload struct {
-	TodoID       string `param:"id" validate:"required,uuid"`
-	AttachmentID string `param:"attachmentId" validate:"required,uuid"`
+	TodoID       uuid.UUID `param:"id" validate:"required,uuid"`
+	AttachmentID uuid.UUID `param:"attachmentId" validate:"required,uuid"`
 }
 
 func (p *DeleteTodoAttachmentPayload) Validate() error {
@@ -133,8 +133,8 @@ func (p *DeleteTodoAttachmentPayload) Validate() error {
 }
 
 type GetAttachmentPresignedURLPayload struct {
-	TodoID       string `param:"id" validate:"required,uuid"`
-	AttachmentID string `param:"attachmentId" validate:"required,uuid"`
+	TodoID       uuid.UUID `param:"id" validate:"required,uuid"`
+	AttachmentID uuid.UUID `param:"attachmentId" validate:"required,uuid"`
 }
 
 func (p *GetAttachmentPresignedURLPayload) Validate() error {

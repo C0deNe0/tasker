@@ -26,4 +26,10 @@ func registerTodoRoutes(r *echo.Group, h *handler.TodoHandler, ch *handler.Comme
 	todoComments := dynamicTodo.Group("/comments")
 	todoComments.PUT("", ch.AddComment)
 	todoComments.GET("", ch.GetCommentsByTodoID)
+
+	//attachments
+	todoAttachment := dynamicTodo.Group("/attachments")
+	todoAttachment.POST("", h.UploadTodoAttachment)
+	todoAttachment.GET("/:attachmentId/download", h.GetAttachmentPresignedURL)
+	todoAttachment.DELETE("/:attachmentId", h.DeleteTodoAttachment)
 }
