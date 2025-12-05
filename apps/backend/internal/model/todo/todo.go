@@ -65,6 +65,14 @@ type TodoStats struct {
 	Overdue   int `json:"overdue"`
 }
 
+type UserWeeklyStats struct {
+	UserID         string `json:"userId" db:"user_id"`
+	CreatedCount   int    `json:"createdCount" db:"created_count"`
+	CompletedCount int    `json:"completedCount" db:"completed_count"`
+	ActiveCount    int    `json:"activeCount" db:"active_count"`
+	OverdueCount   int    `json:"overdueCount" db:"overdue_count"`
+}
+
 func (t *Todo) IsOverDue() bool {
 	return t.DueDate != nil && t.DueDate.Before(time.Now()) && t.Status != StatusCompleted
 }

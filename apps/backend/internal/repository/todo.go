@@ -510,10 +510,7 @@ func (r *TodoRepository) GetTodoAttachment(ctx context.Context, todoID uuid.UUID
 	return &attachment, nil
 }
 
-
-
-
- func (r *TodoRepository) GetTodoAttachments(
+func (r *TodoRepository) GetTodoAttachments(
 	ctx context.Context,
 	todoID uuid.UUID,
 ) ([]todo.TodoAttachment, error) {
@@ -624,4 +621,123 @@ func (r *TodoRepository) UploadTodoAttachment(
 	}
 
 	return &attachment, nil
+}
+
+//CRON REQUIREMENTS
+
+func (r *TodoRepository) GetTodosDueInHours(ctx context.Context, hours int, limit int) ([]todo.Todo, error) {
+	stmt := `SELECT * FROM todos WHERE due_date IS NOT NULL AND due_date > NOW() AND due_date <= NOW() + INTERVAL '%d hours' AND status NOT IN ('completed','arvchived')
+	ORDER BY
+		due_date ASC LIMIT %d`
+
+	query := fmt.Sprintf(stmt, hours, limit)
+	rows, err := r.server.DB.Pool.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute get todos due in %d hours query: %w", hours, err)
+
+	}
+
+	todos, err := pgx.CollectRows(rows, pgx.RowToStructByName[todo.Todo])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return []todo.Todo{}, nil
+		}
+		return nil, fmt.Errorf("failed to collect rows from table:todos: %w", err)
+	}
+	return todos, nil
+}
+
+func (r *TodoRepository) GetOverdueTodos(ctx context.Context, limit int) ([]todo.Todo, error) {
+	stmt := `
+	 	SELECT * FROM todos WHERE due_date IS NOT NULL AND due_date < NOW() AND status NOT IN ('completed', 'archived')
+		ORDER BY
+			due_date ASC
+		LIMIT @limit 
+	 `
+
+	rows, err := r.server.DB.Pool.Query(ctx, stmt, pgx.NamedArgs{"limit": limit})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute get overdue todos query: %w", err)
+	}
+
+	todos, err := pgx.CollectRows(rows, pgx.RowToStructByName[todo.Todo])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return []todo.Todo{}, nil
+		}
+
+		return nil, fmt.Errorf("failed to collect the rows from table:todos: %w", err)
+	}
+
+	return todos, nil
+}
+
+func (r *TodoRepository) GetCompletedtodosOlderThan(ctx context.Context, cutoffDate *time.Time, limit int) ([]todo.Todo, error) {
+	stmt := `
+		SELECT * FROM todos WHERE status = 'completed' AND  completed_at  IS NOT NULL AND completed_at < @	cutoff_date ORDER BY completed_at ASC LIMIT @limit
+	`
+
+	rows, err := r.server.DB.Pool.Query(ctx, stmt, pgx.NamedArgs{
+		"cutoff_date": cutoffDate,
+		"limit":       limit,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute get completed todos older than  %s query: %w", cutoffDate.Format("2006-01-02"), err)
+	}
+
+	todos, err := pgx.CollectRows(rows, pgx.RowToStructByName[todo.Todo])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return []todo.Todo{}, nil
+		}
+
+		return nil, fmt.Errorf("failed to collect the rows from table:todos: %w", err)
+	}
+
+	return todos, nil
+}
+
+func (r *TodoRepository) ArchiveTodos(ctx context.Context, todoIDs []uuid.UUID) error {
+	stmt := `UPDATE todos SET status = 'archived' WHERE id= ANY(@todo_ids::uuid[])`
+
+	result, err := r.server.DB.Pool.Exec(ctx, stmt, pgx.NamedArgs{
+		"todo_ids": todoIDs,
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to archive todos: %w", err)
+
+	}
+	if result.RowsAffected() != int64(len(todoIDs)) {
+		return fmt.Errorf("expected to archive %d todos, but archied %d", len(todoIDs), result.RowsAffected())
+	}
+
+	return nil
+}
+
+func (r *TodoRepository) GetWeeklyTodoStatsForUsers(ctx context.Context, startDate, endDate time.Time) ([]todo.UserWeeklyStats, error) {
+	stmt := `SELECT user_id COUNT(*) FILTER (WHERE created_at >= @start_date AND created_at <= @end_date) AS created_count,
+	COUNT(*) FILTER (WHERE status ='completed' AND completed_at >=@start_date AND completed_at <= @end_date) AS completed_count,
+	COUNT(*) FILTER (WHERE status IS NOT IN('completed', 'archived')) AS active_count,
+	COUNT(*) FILTER (WHERE due_date < NOW() AND status NOT IN ('completed','archived')) AS overdue_count 
+	FROM todos, GROUP BY user_id HAVING COUNT(*) > 0 `
+
+	rows, err := r.server.DB.Pool.Query(ctx, stmt, pgx.NamedArgs{
+		"start_date": startDate, "end_date": endDate,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute get weekly state query")
+	}
+
+	stats, err := pgx.CollectRows(rows, pgx.RowToStructByName[todo.UserWeeklyStats])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return []todo.UserWeeklyStats{}, nil
+		}
+		return nil, fmt.Errorf("failed to collect rows from table:todos: %w", err)
+
+	}
+
+	return stats, nil	
 }
